@@ -10,6 +10,12 @@ PORT=int(os.getenv('MUSE_PORT','8765'))
 DB=os.getenv('MUSE_DB','/var/lib/muse/board.sqlite3')
 PASSWORD=os.environ.get('MUSE_PASSWORD')
 SECRET=os.environ.get('MUSE_SESSION_SECRET')
+if os.environ.get('MUSE_PASSWORD_FILE'):
+    with open(os.environ['MUSE_PASSWORD_FILE'],encoding='utf-8') as password_file:
+        PASSWORD=password_file.read().strip()
+if os.environ.get('MUSE_SESSION_SECRET_FILE'):
+    with open(os.environ['MUSE_SESSION_SECRET_FILE'],encoding='utf-8') as secret_file:
+        SECRET=secret_file.read().strip()
 if not PASSWORD or not SECRET or len(SECRET)<32:
     raise SystemExit('MUSE_PASSWORD and MUSE_SESSION_SECRET (32+ chars) required')
 os.makedirs(os.path.dirname(DB),exist_ok=True)
