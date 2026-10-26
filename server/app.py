@@ -63,6 +63,8 @@ class Handler(BaseHTTPRequestHandler):
         self.json(200,{'revision':rev,'board':json.loads(body)})
     def do_POST(self):
         if not self.origin_ok():return self.json(403,{'error':'origin'})
+        if self.path in ('/muse-api/logout','/logout'):
+            return self.json(200,{'ok':True},'muse_session=; Path=/muse-api; HttpOnly; Secure; SameSite=Strict; Max-Age=0')
         if self.path not in ('/muse-api/login','/login'):return self.json(404,{'error':'not_found'})
         try:password=self.receive()['password']
         except (ValueError,KeyError,TypeError):return self.json(400,{'error':'invalid'})
