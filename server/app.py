@@ -56,14 +56,14 @@ class Handler(BaseHTTPRequestHandler):
         if size<1 or size>2_000_000:raise ValueError('bad length')
         return json.loads(self.rfile.read(size))
     def do_GET(self):
-        if self.path!='/muse-api/board':return self.json(404,{'error':'not_found'})
+        if self.path not in ('/muse-api/board','/board'):return self.json(404,{'error':'not_found'})
         if not self.auth():return self.json(401,{'error':'unauthorized'})
         with lock,sqlite3.connect(DB) as c:
             rev,body=c.execute('SELECT revision,body FROM board WHERE id=1').fetchone()
         self.json(200,{'revision':rev,'board':json.loads(body)})
     def do_POST(self):
         if not self.origin_ok():return self.json(403,{'error':'origin'})
-        if self.path!='/muse-api/login':return self.json(404,{'error':'not_found'})
+        if self.path not in ('/muse-api/login','/login'):return self.json(404,{'error':'not_found'})
         try:password=self.receive()['password']
         except (ValueError,KeyError,TypeError):return self.json(400,{'error':'invalid'})
         ip=self.client_address[0];now=time.monotonic()
@@ -78,7 +78,7 @@ class Handler(BaseHTTPRequestHandler):
         self.json(200,{'ok':True},'muse_session='+payload+'.'+sign(payload)+'; Path=/muse-api; HttpOnly; Secure; SameSite=Strict; Max-Age=1209600')
     def do_PUT(self):
         if not self.origin_ok():return self.json(403,{'error':'origin'})
-        if self.path!='/muse-api/board':return self.json(404,{'error':'not_found'})
+        if self.path not in ('/muse-api/board','/board'):return self.json(404,{'error':'not_found'})
         if not self.auth():return self.json(401,{'error':'unauthorized'})
         try:
             payload=self.receive();board=payload['board'];rev=payload['revision']
